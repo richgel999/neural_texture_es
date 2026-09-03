@@ -32,12 +32,17 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <sys/stat.h>
+#endif
 
 static const float PI = 3.14159265358979f;
 
 // ---------------------------------------------------------------- options
 struct Options {
-    std::string input = "input.png";
+    std::string input = "kodim23.png";  // default test image (checked in)
     std::string outdir = "out";
     int crop = 512;            // center-crop input to crop x crop (0 = none)
     int LW = 64, LH = 64, LC = 4;
@@ -67,7 +72,7 @@ struct Options {
 
 static void usage() {
     printf(
-        "ntc [options] input.png\n"
+        "ntc [options] [input.png]   (default input: kodim23.png)\n"
         "  --out DIR            output directory (default out)\n"
         "  --crop N             center-crop to NxN, 0 = none (512)\n"
         "  --latent W H C       latent texture size (64 64 4)\n"
@@ -726,8 +731,11 @@ int main(int argc, char** argv) {
     printf("OpenMP threads: %d\n", omp_get_max_threads());
 #endif
 
-    std::string mk = "mkdir \"" + o.outdir + "\" 2>nul";
-    system(mk.c_str());
+#ifdef _WIN32
+    _mkdir(o.outdir.c_str());
+#else
+    mkdir(o.outdir.c_str(), 0755);
+#endif
 
     Image target;
     if (!load_png(o.input, target, o.crop)) {

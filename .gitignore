@@ -1,4 +1,4 @@
-build/
+build*/
 out*/
 *.log
 kodim*.png
