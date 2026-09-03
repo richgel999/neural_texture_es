@@ -1,4 +1,4 @@
-# ntc — toy neural texture compression trained with Evolution Strategies
+# toy neural texture compression trained with Evolution Strategies
 
 A small, self-contained C++ experiment: an RGB image is encoded as a
 low-resolution latent texture plus a tiny MLP decoder, and both are trained
