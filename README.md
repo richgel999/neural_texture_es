@@ -72,6 +72,10 @@ cmake --build build --config Release
 ntc image.png --out out --latent 128 128 8 --iters 3000
 ```
 
+Run with no arguments, `ntc` trains on the checked-in `kodim23.png` using the
+default 64×64×4 latent. The image is located relative to the executable, so
+this works from the build directory as well as the repo root.
+
 Progress is printed to stdout (MSE, PSNR, quantized PSNR and bitrate, latent
 stats, throughput). Reconstructions, a latent visualization, and `model.bin`
 are written to the output directory periodically.
