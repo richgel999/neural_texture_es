@@ -48,9 +48,16 @@ iterations, and the eight latent channels side by side.
   on the same random 4096-pixel minibatch. The estimated gradient is fed to Adam.
 * **Latent:** all latent values are perturbed at once and the full image is
   decoded twice per pair, 4 pairs per step. Each pixel's loss change is credited
-  only to the 4 texels its bilinear tap reads, so a single decode pair yields a
-  local gradient estimate for every texel simultaneously. This locality trick is
-  what makes ES practical on tens of thousands of latent parameters.
+  only to the 4 texels its bilinear tap reads.
+
+  Ordinary ES already updates every parameter from one antithetic pair, but its
+  variance grows with parameter count: the single scalar loss difference is the
+  sum of thousands of independent local effects, and each texel's share is
+  buried under everyone else's. Here each texel's loss difference is measured
+  only over the pixels in its own bilinear footprint, so noise from the other
+  ~16k texels is discarded instead of averaged. That credit assignment, not the
+  per-evaluation cost, is what makes ES practical on a latent with 131k values
+  using only 4 pairs per step.
 * The latent stays fp32 during training; quantization is applied afterwards
   and reported at a configurable bit depth.
 
@@ -113,8 +120,9 @@ Implemented in this repository:
 * **Footprint attribution for the latent:** all latent texels are perturbed
   simultaneously, the full image is decoded for +ε and −ε, and each pixel's
   loss change is credited only to the texels its bilinear filter tap reads.
-  One decode pair therefore yields an independent local gradient estimate for
-  every texel, making ES practical on tens of thousands of latent parameters.
+  Each texel thus discards loss changes from pixels it cannot affect, which
+  removes the variance that otherwise grows with parameter count and makes ES
+  practical on latents with 10^5 or more values at a handful of pairs per step.
 * Separate ES schedules for the global decoder (minibatch, many pairs) and the
   local latent (full image, few pairs), interleaved every iteration, with the
   ES estimates fed through Adam.
