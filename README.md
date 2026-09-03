@@ -52,7 +52,7 @@ iterations, and the eight latent channels side by side.
 
   Ordinary ES already updates every parameter from one antithetic pair, but its
   variance grows with parameter count: the single scalar loss difference is the
-  sum of thousands of independent local effects, and each texel's share is
+  sum of thousands of separate local effects, and each texel's share is
   buried under everyone else's. Here each texel's loss difference is measured
   only over the pixels in its own bilinear footprint, so noise from the other
   ~16k texels is discarded instead of averaged. That credit assignment, not the
