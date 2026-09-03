@@ -99,6 +99,52 @@ Useful options (`ntc --help` lists them all):
 Images larger than 512×512 are center-cropped by default (`--crop`).
 The Kodak test images are widely available; kodim23 is the parrots.
 
+## Prior art disclosure
+
+Published September 3, 2026 (blog post above and this repository). The
+following are disclosed here as public prior art.
+
+Implemented in this repository:
+
+* Neural texture compression, a low-resolution latent texture plus a small MLP
+  decoder, with **both the latent and the decoder trained entirely by
+  Evolution Strategies** (antithetic Gaussian perturbations), no
+  backpropagation or derivatives of any kind.
+* **Footprint attribution for the latent:** all latent texels are perturbed
+  simultaneously, the full image is decoded for +ε and −ε, and each pixel's
+  loss change is credited only to the texels its bilinear filter tap reads.
+  One decode pair therefore yields an independent local gradient estimate for
+  every texel, making ES practical on tens of thousands of latent parameters.
+* Separate ES schedules for the global decoder (minibatch, many pairs) and the
+  local latent (full image, few pairs), interleaved every iteration, with the
+  ES estimates fed through Adam.
+* Post-training scalar quantization of the latent with per-channel scale, and
+  reported bitrate at arbitrary latent bit depth.
+* Pluggable positional encodings for the decoder, including cell-periodic
+  cosine features of the bilinear cell offset (`ldct:N`), found to improve
+  quality at fine latent resolution.
+* Configurable decoder depth, width, and activation; saved models record the
+  full configuration.
+
+Described, not yet implemented:
+
+* **Quantization-aware training under ES:** quantize (or block-compress) the
+  latent inside the decode used for every ES evaluation. Because ES only
+  observes loss values, any non-differentiable quantizer or codec can sit in
+  the loop with no straight-through estimator or differentiable surrogate.
+* **Block-compressed latents (BC1/BC4/BC7/ASTC) in the training loop**, with
+  loss attribution per compressed block rather than per texel.
+* **Search directly in the encoded domain:** drop the float latent and run ES
+  (or stochastic coordinate descent) over block endpoints and indices
+  themselves, so the trainer and the texture compressor are the same program.
+* **Non-overlapping perturbation phases:** perturb only texels or blocks on
+  one phase of a 2×2 or 3×3 grid per evaluation so footprints never overlap,
+  giving exact per-parameter loss differences in one decode; cycle the phase
+  to cover all parameters.
+* Multiresolution latent pyramids trained with the same footprint attribution,
+  and learned interpolation kernels expressed as a few global parameters
+  rather than as decoder inputs.
+
 ## Status
 
 This is a deliberately simple research toy for learning and experimentation,
