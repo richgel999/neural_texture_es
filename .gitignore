@@ -1,5 +1,4 @@
 build*/
 out*/
 *.log
-kodim*.png
 !out_128c8/
