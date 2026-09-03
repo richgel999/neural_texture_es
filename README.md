@@ -111,21 +111,40 @@ The Kodak test images are widely available; kodim23 is the parrots.
 Published September 3, 2026 (blog post above and this repository). The
 following are disclosed here as public prior art.
 
+Neural texture representations using learned latent grids with small neural
+decoders, and Evolution Strategies / simultaneous-perturbation methods for
+derivative-free optimization, are established ideas. The technically
+distinctive part explored here is their combination with the decoder's known
+spatial dependency structure: all latent values are perturbed simultaneously,
+antithetic full-image evaluations produce per-pixel loss differences, and each
+pixel's loss difference is attributed only to the latent texels actually read
+by that pixel's filtering footprint. This yields simultaneous,
+support-restricted ES estimates for every latent texel while discarding loss
+variation from pixels a given texel cannot affect. Estimates for neighboring
+texels still share pixels and the same perturbation draw, so they are
+correlated rather than independent.
+
+For a given latent value, the omitted per-pixel loss terms do not depend on
+that value's perturbation, so their products with it have zero expectation in
+the ordinary Gaussian ES estimator. Footprint attribution therefore removes
+them without bias, as a variance-reduction mechanism that follows directly
+from the decoder's dependency graph.
+
 Implemented in this repository:
 
-* Neural texture compression, a low-resolution latent texture plus a small MLP
-  decoder, with **both the latent and the decoder trained entirely by
-  Evolution Strategies** (antithetic Gaussian perturbations), no
-  backpropagation or derivatives of any kind.
-* **Footprint attribution for the latent:** all latent texels are perturbed
-  simultaneously, the full image is decoded for +ε and −ε, and each pixel's
-  loss change is credited only to the texels its bilinear filter tap reads.
-  Each texel thus discards loss changes from pixels it cannot affect, which
-  removes the variance that otherwise grows with parameter count and makes ES
-  practical on latents with 10^5 or more values at a handful of pairs per step.
-* Separate ES schedules for the global decoder (minibatch, many pairs) and the
-  local latent (full image, few pairs), interleaved every iteration, with the
-  ES estimates fed through Adam.
+* A low-resolution latent texture plus a small MLP decoder, with **both the
+  latent and the decoder optimized entirely by antithetic Evolution
+  Strategies**, without backpropagation or derivatives of any kind.
+* **Support-restricted footprint attribution for latent ES:** all latent values
+  are perturbed simultaneously and the full image is decoded for +ε and −ε.
+  Each pixel's loss difference is attributed only to the latent texels in that
+  pixel's bilinear sampling footprint, so one antithetic decode pair produces
+  simultaneous local ES estimates across the entire latent while excluding loss
+  terms that cannot depend on each texel.
+* Separate ES schedules matched to parameter support: minibatched, many-pair ES
+  for the globally acting decoder weights, and full-image, few-pair
+  footprint-attributed ES for the spatially local latent, interleaved every
+  iteration, with the estimates fed through Adam.
 * Post-training scalar quantization of the latent with per-channel scale, and
   reported bitrate at arbitrary latent bit depth.
 * Pluggable positional encodings for the decoder, including cell-periodic
