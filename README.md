@@ -57,14 +57,18 @@ iterations, and the eight latent channels side by side.
 ## Building
 
 CMake generating a Visual Studio solution (MSVC), or any C++17 compiler with
-OpenMP on Linux/WSL. Tested with MSVC 2022 on Windows and gcc 13 under WSL2.
-Note that `std::normal_distribution` differs between standard libraries, so
-the same seed gives slightly different results on each platform.
+OpenMP on Linux/WSL. Tested with MSVC 2022 and MSVC 2026 on Windows, and
+gcc 13 under WSL2. Note that `std::normal_distribution` differs between
+standard libraries, so the same seed gives slightly different results on
+each platform.
 
 ```
 cmake -S . -B build -G "Visual Studio 17 2022" -A x64
 cmake --build build --config Release
 ```
+
+For Visual Studio 2026 use `-G "Visual Studio 18 2026"`, which needs
+CMake 4.2 or newer (the CMake bundled with VS 2026 works).
 
 ## Running
 
