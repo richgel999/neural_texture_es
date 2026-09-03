@@ -738,9 +738,24 @@ int main(int argc, char** argv) {
 #endif
 
     Image target;
-    if (!load_png(o.input, target, o.crop)) {
-        printf("could not load %s, using synthetic %dx%d image\n", o.input.c_str(), o.crop ? o.crop : 512, o.crop ? o.crop : 512);
-        make_synthetic(target, o.crop ? o.crop : 512);
+    // Try the path as given, then relative to the executable's directory and
+    // its parents, so running from build/Release still finds the checked-in image.
+    {
+        std::vector<std::string> candidates = { o.input };
+        std::string exe = argv[0];
+        size_t slash = exe.find_last_of("/\\");
+        std::string dir = (slash == std::string::npos) ? "." : exe.substr(0, slash);
+        for (int up = 0; up < 4; up++) {
+            candidates.push_back(dir + "/" + o.input);
+            dir += "/..";
+        }
+        bool loaded = false;
+        for (const std::string& c : candidates)
+            if (load_png(c, target, o.crop)) { o.input = c; loaded = true; break; }
+        if (!loaded) {
+            printf("could not load %s, using synthetic %dx%d image\n", o.input.c_str(), o.crop ? o.crop : 512, o.crop ? o.crop : 512);
+            make_synthetic(target, o.crop ? o.crop : 512);
+        }
     }
     save_png(o.outdir + "/target.png", target);
 
