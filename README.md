@@ -163,7 +163,7 @@ Described, not yet implemented:
   loss attribution per compressed block rather than per texel.
 * **Search directly in the encoded domain:** drop the float latent and run ES
   (or stochastic coordinate descent) over block endpoints and indices (weights)
-  themselves, so the trainer and the texture compressor are the same program.
+  themselves, **so the trainer and the texture compressor are the same program**.
 * **Non-overlapping perturbation phases:** perturb only texels or blocks on
   one phase of a 2×2 or 3×3 grid per evaluation so footprints never overlap,
   giving exact per-parameter loss differences in one decode; cycle the phase
