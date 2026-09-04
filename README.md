@@ -159,10 +159,10 @@ Described, not yet implemented:
   latent inside the decode used for every ES evaluation. Because ES only
   observes loss values, any non-differentiable quantizer or codec can sit in
   the loop with no straight-through estimator or differentiable surrogate.
-* **Block-compressed latents (BC1/BC4/BC7/ASTC) in the training loop**, with
+* **Block-compressed latents (BC1/BC2/BC3/BC4/BC5/BC6H/BC7/ASTC LDR/ASTC HDR) in the training loop**, with
   loss attribution per compressed block rather than per texel.
 * **Search directly in the encoded domain:** drop the float latent and run ES
-  (or stochastic coordinate descent) over block endpoints and indices
+  (or stochastic coordinate descent) over block endpoints and indices (weights)
   themselves, so the trainer and the texture compressor are the same program.
 * **Non-overlapping perturbation phases:** perturb only texels or blocks on
   one phase of a 2×2 or 3×3 grid per evaluation so footprints never overlap,
