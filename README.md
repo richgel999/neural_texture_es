@@ -7,6 +7,8 @@ training framework. Dependencies are `stb_image`, `stb_image_write`, and OpenMP.
 
 Write-up: [Fitting a neural texture decoder with ES](https://richg42.blogspot.com/2026/09/fitting-neural-texture-decoder-with-es.html)
 
+Here's the newer version supporting [materials](https://github.com/richgel999/neural_texture_es2).
+
 ```
 I(u,v) ≈ MLP( bilinear(Z, u, v), phi(u,v) )
 ```
